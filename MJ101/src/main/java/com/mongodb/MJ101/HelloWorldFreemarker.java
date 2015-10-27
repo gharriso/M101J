@@ -28,17 +28,17 @@ public class HelloWorldFreemarker {
 			helloMap.put("title", "Hello from Guy with Spark and Freemarker");
 			helloTemplate.process(helloMap, writer);
 			System.out.println(writer);
-			Spark.get("/hello", (req, res) -> writer);
-//			Spark.get("/", new Route( {
-//	            public Object handle(final Request request, final Response response){
-//	            return "Hello World";
-//	            }
-//			}));
-//	         Spark.get("/echo/:thing", new Route() {
-//	                public Object handle(final Request request, final Response response){
-//	                return request.params(":thing");
-//	              }
-//	        });
+			//Spark.get("/hello", (req, res) -> writer);
+			Spark.get("/", new Route( {
+	            public Object handle(final Request request, final Response response){
+	            return "Hello World";
+	            }
+			}));
+	         Spark.get("/echo/:thing", new Route() {
+	                public Object handle(final Request request, final Response response){
+	                return request.params(":thing");
+	              }
+	        });
 			Spark.get("/", new Route() {  
 				public Object handle(final Request request, final Response response){
 	            return "Hello World from the root handler";

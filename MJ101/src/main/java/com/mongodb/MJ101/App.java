@@ -12,10 +12,12 @@ import com.mongodb.client.*;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Projections;
+import com.mongodb.client.model.Sorts;
+import com.mongodb.client.model.UpdateOptions;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.*;
- 
+import static com.mongodb.client.model.Sorts.*;
 import com.mongodb.*;
 import java.util.*;
 
@@ -125,10 +127,77 @@ public class App {
 
 		}
 		System.out.println("----- more complex projections class static imports  -----"); 
-		filter = and(eq("x", 0), gte("y", 5), lte("y", 8));
+		filter = and(gt("x", 8), gte("y", 8), lte("y", 8));
 		proj= fields( exclude("_id"),
 				include("y")); 
 		for (Document d : coll2.find(filter).projection(proj)) {
+			System.out.println(d.toJson());
+
+		}
+		System.out.println("----- sorting 1 -----"); 
+		filter = and(gt("x", 8), gt("y", 8));
+		Bson sort=new Document("x",1).append("y",-1); 
+		for (Document d : coll2.find().filter(filter).sort(sort)) {
+			System.out.println(d.toJson());
+
+		}
+		System.out.println("----- sorting 2-----"); 
+		sort=orderBy(ascending("x"),descending("y"));
+		for (Document d : coll2.find().filter(filter).sort(sort)) {
+			System.out.println(d.toJson());
+
+		}
+		System.out.println("----- skip limit -----"); 
+		sort=orderBy(ascending("x"),descending("y"));
+		for (Document d : coll2.find().sort(sort).skip(5).limit(4)) {
+			System.out.println(d.toJson());
+
+		}
+		System.out.println("----- replace-----"); 
+		MongoCollection<Document> coll3=database.getCollection("test3"); 
+		coll3.drop(); 
+		for (int i=0;i<8;i++) {
+			coll3.insertOne(new Document("_id",i).append("x",i)); 
+		}
+		for (Document d : coll3.find()) {
+			System.out.println(d.toJson());
+
+		}
+		
+		coll3.replaceOne(eq("x",5), new Document("x",23).append("updated", true)); 
+		for (Document d : coll3.find()) {
+			System.out.println(d.toJson());
+
+		}
+		System.out.println("----- update-----"); 
+		coll3.updateOne(eq("x",23), new Document("$set",new Document("x",20))); 
+		for (Document d : coll3.find()) {
+			System.out.println(d.toJson());
+
+		}
+		System.out.println("----- upsert 1-----"); 
+		coll3.updateOne(eq("_id",9), new Document("$set",new Document("x",9)),
+				new UpdateOptions().upsert(true)); 
+		for (Document d : coll3.find()) {
+			System.out.println(d.toJson());
+
+		}
+		System.out.println("----- upsert 2-----"); 
+		coll3.updateOne(eq("_id",9), new Document("$set",new Document("x",10)),
+				new UpdateOptions().upsert(true)); 
+		for (Document d : coll3.find()) {
+			System.out.println(d.toJson());
+
+		}
+		System.out.println("----- update many  -----"); 
+		coll3.updateMany(and(gt("_id",4),lt("_id",9)), new Document("$inc",new Document("x",1))); 
+		for (Document d : coll3.find()) {
+			System.out.println(d.toJson());
+
+		}
+		System.out.println("----- delete -----"); 
+		coll3.deleteMany( and(gt("_id",4),lt("_id",9))); 
+		for (Document d : coll3.find()) {
 			System.out.println(d.toJson());
 
 		}
